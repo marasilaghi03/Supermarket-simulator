@@ -1,0 +1,2 @@
+# Supermarket simulator
+proiect ALJV
