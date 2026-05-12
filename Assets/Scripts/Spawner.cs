@@ -4,7 +4,7 @@ using System.Collections;
 public class Spawner : MonoBehaviour
 {
     [SerializeField] private CustomerAgent prefab;
-    [SerializeField] private int count = 3;
+    [SerializeField] private int count = 8;
 
     private GridManager grid;
 
@@ -12,10 +12,10 @@ public class Spawner : MonoBehaviour
     {
         grid = FindAnyObjectByType<GridManager>();
 
-        for (int i = 0; i < count; i++)   //spawnam un agent la fiecare 2 secunde
+        for (int i = 0; i < count; i++)   //spawnam un agent la fiecare 3 secunde
         {
             Spawn();
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(3f);
         }
     }
     private void Spawn()

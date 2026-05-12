@@ -35,22 +35,40 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    private void MakeTestLayout()       //alegem rolul unor celule
+    private void MakeTestLayout()
     {
-        Set(0, 3, CellType.Entrance, true);     //true = walkable
+        Set(0, 3, CellType.Entrance, true);
         Set(0, 2, CellType.Exit, true);
-        Set(10, 1, CellType.Checkout, true);
+        Set(10, 1, CellType.Checkout, false);
 
-        Set(4, 5, CellType.Shelf, false);
-        Set(5, 5, CellType.Shelf, false);
-        Set(6, 5, CellType.Shelf, false);
+        SetShelf(4, 5, ProductType.Milk);
+        SetShelf(5, 5, ProductType.Milk);
 
-        Set(4, 3, CellType.Shelf, false);
-        Set(5, 3, CellType.Shelf, false);
-        Set(6, 3, CellType.Shelf, false);
+        SetShelf(6, 5, ProductType.Bread);
+        SetShelf(4, 2, ProductType.Bread);
 
-        Set(8, 6, CellType.Wall, false);
-        Set(8, 5, CellType.Wall, false);
+        SetShelf(5, 2, ProductType.Fruit);
+        SetShelf(6, 2, ProductType.Fruit);
+
+        SetShelf(8, 4, ProductType.Snacks);
+        SetShelf(8, 5, ProductType.Snacks);
+
+        Set(11, 1, CellType.Wall, false);
+        Set(0, 4, CellType.Wall, false);
+        Set(0, 1, CellType.Wall, false);
+
+        for (int x= 0; x < width; x++)
+        {
+            Set(x, 7, CellType.Wall, false);
+        }
+    }
+
+    
+
+    public void SetShelf(int x, int y, ProductType product)
+    {
+        Set(x, y, CellType.Shelf, false);
+        grid[x, y].product = product;
     }
 
     public void Set(int x, int y, CellType type, bool walkable)  //seteaza rolul unei celule
@@ -83,6 +101,23 @@ public class GridManager : MonoBehaviour
         return cell != null && cell.walkable;
     }
 
+    public bool FreeForAgent(GridCell cell, CustomerAgent agent)   //verifica daca un agent poate intra pe o celula
+    {
+        if (cell == null || !cell.walkable)
+            return false;
+
+        //daca tile-ul este ocupat de alt agent, nu putem intra
+        if (cell.occupiedBy != null && cell.occupiedBy != agent)
+            return false;
+
+        //daca tile-ul este deja rezervat de alt agent, nu putem intra
+        if (cell.reservedForMove != null && cell.reservedForMove != agent)
+            return false;
+
+        return true;
+    }
+
+
     public GridCell Find(CellType type)        //returneaza prima celula de tipul dat
     {
         for (int x = 0; x < width; x++)
@@ -114,6 +149,42 @@ public class GridManager : MonoBehaviour
         return cells[Random.Range(0, cells.Count)];
     }
 
+
+    public List<GridCell> FindShelves(ProductType product)
+    {
+        List<GridCell> result = new List<GridCell>();
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                GridCell c = grid[x, y];
+                if (c.type == CellType.Shelf && c.product == product)
+                    result.Add(c);
+            }
+        }
+
+        return result;
+    }
+
+    public List<ProductType> GetProducts()
+    {
+        List<ProductType> result = new List<ProductType>();
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                GridCell c = grid[x, y];
+                if (c.type == CellType.Shelf && c.product != ProductType.None && !result.Contains(c.product))
+                    result.Add(c.product);
+            }
+        }
+
+        return result;
+    }
+
+
     public Vector3 World(int x, int y)       //returneaza pozitia in lumea 3D a celulei de la coordonatele date
     {
         return new Vector3(x * cellSize, y * cellSize, 0f) + offset;
@@ -132,18 +203,6 @@ public class GridManager : MonoBehaviour
         return new Vector2Int(x, y);
     }
 
-    private Color CellColor(GridCell cell)   //returneaza culoarea asociata tipului de celula dat
-    {
-        switch (cell.type)
-        {
-            case CellType.Shelf: return new Color(0.2f, 0.5f, 1f);
-            case CellType.Checkout: return new Color(0.2f, 1f, 0.2f);
-            case CellType.Entrance: return new Color(1f, 1f, 0.2f);
-            case CellType.Exit: return new Color(1f, 0.5f, 0.2f);
-            case CellType.Wall: return new Color(0.8f, 0.2f, 0.2f);
-            default: return new Color(1f, 1f, 1f, 0.1f);
-        }
-    }
 
     private void OnDrawGizmos()      //deseneaza grid-ul in editor
     {
@@ -168,20 +227,7 @@ public class GridManager : MonoBehaviour
             return;
         }
 
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                GridCell cell = grid[x, y];
-                Vector3 pos = World(x, y);
-
-                Gizmos.color = CellColor(cell);
-                Gizmos.DrawCube(pos, Vector3.one * cellSize * 0.95f);
-
-                Gizmos.color = Color.gray;
-                Gizmos.DrawWireCube(pos, Vector3.one * cellSize);
-            }
-        }
+    
     }
 
 
