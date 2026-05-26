@@ -4960,13 +4960,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 16_Grocery_store_48x48_168
+      name: iesire
       rect:
         serializedVersion: 2
         x: 398
         y: 2592
         width: 31
-        height: 116
+        height: 94
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -5070,13 +5070,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 16_Grocery_store_48x48_173
+      name: iesire1
       rect:
         serializedVersion: 2
         x: 435
-        y: 2559
-        width: 49
-        height: 123
+        y: 2591
+        width: 31
+        height: 91
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -11696,13 +11696,11 @@ TextureImporter:
       16_Grocery_store_48x48_165: 3737282797810306385
       16_Grocery_store_48x48_166: 1872400771482689756
       16_Grocery_store_48x48_167: 7417306234388147957
-      16_Grocery_store_48x48_168: -4266241963113171846
       16_Grocery_store_48x48_169: -6504234854878404345
       16_Grocery_store_48x48_17: -1105688648538984834
       16_Grocery_store_48x48_170: 6495274375410614973
       16_Grocery_store_48x48_171: -8689857954475057834
       16_Grocery_store_48x48_172: 3148269641383880026
-      16_Grocery_store_48x48_173: -9026934107901553348
       16_Grocery_store_48x48_174: -8721339759370751368
       16_Grocery_store_48x48_175: -8849756492803492807
       16_Grocery_store_48x48_176: -7472875667060775794
@@ -12089,6 +12087,8 @@ TextureImporter:
       16_Grocery_store_48x48_97: -4985027320500075186
       16_Grocery_store_48x48_98: 7715296567754784453
       16_Grocery_store_48x48_99: -8157236677034675524
+      iesire: -4266241963113171846
+      iesire1: -9026934107901553348
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

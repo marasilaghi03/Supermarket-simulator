@@ -106,16 +106,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4558db6122586dd4793b5166d8fd8326, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CustomerAgent
+  decisionSystem: 0
   grid: {fileID: 0}
   queue: {fileID: 0}
-  moveSpeed: 2
-  pickTime: 1
-  payTime: 1
-  minItems: 2
-  maxItems: 3
-  nearShelfDistance: 6
-  maxWaitForTile: 1
-  rethinkTime: 0.5
+  minItems: 4
+  maxItems: 6
+  queueRepathInterval: 0.2
 --- !u!61 &-6940748398602017091
 BoxCollider2D:
   m_ObjectHideFlags: 0

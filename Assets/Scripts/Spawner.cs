@@ -4,7 +4,8 @@ using System.Collections;
 public class Spawner : MonoBehaviour
 {
     [SerializeField] private CustomerAgent prefab;
-    [SerializeField] private int count = 8;
+    [SerializeField] private int count = 20;
+    [SerializeField] private float spawnDelay = 3f;
 
     private GridManager grid;
 
@@ -12,17 +13,23 @@ public class Spawner : MonoBehaviour
     {
         grid = FindAnyObjectByType<GridManager>();
 
-        for (int i = 0; i < count; i++)   //spawnam un agent la fiecare 3 secunde
+        for (int i = 0; i < count; i++)
         {
+            if (SimulationStats.Instance != null && SimulationStats.Instance.IsTestFinished())
+                yield break;
+
             Spawn();
-            yield return new WaitForSeconds(3f);
+
+            yield return new WaitForSeconds(spawnDelay);
         }
     }
+
     private void Spawn()
     {
         GridCell entrance = grid.Find(CellType.Entrance);
 
-        if (entrance == null) return;
+        if (entrance == null)
+            return;
 
         Vector3 pos = grid.World(entrance.Pos);
 

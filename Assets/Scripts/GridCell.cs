@@ -7,7 +7,9 @@ public enum CellType
     Checkout,
     Entrance,
     Exit,
-    Wall
+    Wall,
+    QueueEntry, 
+    Empty
 }
 
 public enum ProductType
@@ -27,14 +29,12 @@ public class GridCell
     public bool walkable;
     public CellType type;
     public ProductType product = ProductType.None;
+    public int stock = 99; // or whatever default
 
-    //pentru rafturi: retine daca un raft este rezervat de un agent
     [System.NonSerialized] public CustomerAgent reservedBy;
 
-    //pentru miscare: retine daca un tile este ocupat de un agent
     [System.NonSerialized] public CustomerAgent occupiedBy;
 
-    //pentru miscare: retine daca un tile este deja rezervat ca urmator pas
     [System.NonSerialized] public CustomerAgent reservedForMove;
 
     public Vector2Int Pos => new Vector2Int(x, y);

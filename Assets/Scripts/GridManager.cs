@@ -5,8 +5,8 @@ using UnityEngine;
 public class GridManager : MonoBehaviour
 {
     [Header("Grid")]
-    public int width = 12;
-    public int height = 8;
+    public int width = 18;
+    public int height = 14;
     public float cellSize = 1f;
     public Vector3 offset = Vector3.zero;
 
@@ -14,7 +14,7 @@ public class GridManager : MonoBehaviour
     public bool showGrid = true;
     public bool showLabels = false;
 
-    private GridCell[,] grid;   //matrice 2d care contine toate celulele
+    private GridCell[,] grid;
 
     private void OnEnable()
     {
@@ -22,7 +22,7 @@ public class GridManager : MonoBehaviour
         MakeTestLayout();
     }
 
-    public void Build()        //creeaza grid-ul
+    public void Build()
     {
         grid = new GridCell[width, height];
 
@@ -37,33 +37,85 @@ public class GridManager : MonoBehaviour
 
     private void MakeTestLayout()
     {
-        Set(0, 3, CellType.Entrance, true);
-        Set(0, 2, CellType.Exit, true);
-        Set(10, 1, CellType.Checkout, false);
+        ClearLayout();
 
-        SetShelf(4, 5, ProductType.Milk);
-        SetShelf(5, 5, ProductType.Milk);
+        PlaceEntranceAndExit();
+        PlaceCheckoutAndQueue();
+        PlaceShelves();
+        PlaceWalls();
+    }
 
-        SetShelf(6, 5, ProductType.Bread);
-        SetShelf(4, 2, ProductType.Bread);
-
-        SetShelf(5, 2, ProductType.Fruit);
-        SetShelf(6, 2, ProductType.Fruit);
-
-        SetShelf(8, 4, ProductType.Snacks);
-        SetShelf(8, 5, ProductType.Snacks);
-
-        Set(11, 1, CellType.Wall, false);
-        Set(0, 4, CellType.Wall, false);
-        Set(0, 1, CellType.Wall, false);
-
-        for (int x= 0; x < width; x++)
+    private void ClearLayout()
+    {
+        for (int x = 0; x < width; x++)
         {
-            Set(x, 7, CellType.Wall, false);
+            for (int y = 0; y < height; y++)
+            {
+                Set(x, y, CellType.Empty, true);
+                grid[x, y].product = ProductType.None;
+            }
         }
     }
 
-    
+    private void PlaceEntranceAndExit()
+    {
+        Set(0, 6, CellType.Entrance, true);
+        Set(14, 0, CellType.Exit, true);
+    }
+
+    private void PlaceCheckoutAndQueue()
+    {
+
+        Set(16, 1, CellType.Checkout, false);
+
+        for (int y = 2; y <= 12; y++)
+        {
+            Set(16, y, CellType.QueueEntry, true);
+        }
+
+    }
+
+    private void PlaceShelves()
+    {
+        SetShelf(3, 10, ProductType.Milk);
+        SetShelf(4, 10, ProductType.Milk);
+
+        SetShelf(10, 10, ProductType.Bread);
+        SetShelf(9, 10, ProductType.Bread);
+
+        SetShelf(14, 9, ProductType.Snacks);
+        SetShelf(14, 10, ProductType.Snacks);
+
+        SetShelf(4, 6, ProductType.Fruit);
+        SetShelf(5, 6, ProductType.Fruit);
+
+        SetShelf(10, 6, ProductType.Bread);
+        SetShelf(9, 6, ProductType.Bread);
+
+        SetShelf(14, 5, ProductType.Snacks);
+        SetShelf(14, 6, ProductType.Snacks);
+
+        SetShelf(3, 2, ProductType.Fruit);
+        SetShelf(4, 2, ProductType.Fruit);
+
+        SetShelf(10, 2, ProductType.Milk);
+        SetShelf(9, 2, ProductType.Milk);
+    }
+
+    private void PlaceWalls()
+    {
+        Set(0, 7, CellType.Wall, false);
+        Set(0, 5, CellType.Wall, false);
+
+        Set(17, 1, CellType.Wall, false);
+        Set(15, 0, CellType.Wall, false);
+        Set(13, 0, CellType.Wall, false);
+
+        for (int x = 0; x < width; x++)
+        {
+            Set(x, height - 1, CellType.Wall, false);
+        }
+    }
 
     public void SetShelf(int x, int y, ProductType product)
     {
@@ -71,54 +123,57 @@ public class GridManager : MonoBehaviour
         grid[x, y].product = product;
     }
 
-    public void Set(int x, int y, CellType type, bool walkable)  //seteaza rolul unei celule
+    public void Set(int x, int y, CellType type, bool walkable)
     {
-        if (!Inside(x, y)) return;
+        if (!Inside(x, y))
+            return;
 
         grid[x, y].type = type;
         grid[x, y].walkable = walkable;
+
+        if (type != CellType.Shelf)
+            grid[x, y].product = ProductType.None;
     }
 
-    public bool Inside(int x, int y)      //verifica daca coordonatele date sunt in interiorul grid-ului
+    public bool Inside(int x, int y)
     {
         return x >= 0 && x < width && y >= 0 && y < height;
     }
 
-    public GridCell Get(int x, int y)    //returneaza celula de la coordonatele date
+    public GridCell Get(int x, int y)
     {
-        if (!Inside(x, y)) return null;
+        if (!Inside(x, y))
+            return null;
+
         return grid[x, y];
     }
 
-    public GridCell Get(Vector2Int pos)     //overload pentru a putea folosi un Vector2Int in loc de coordonate separate
+    public GridCell Get(Vector2Int pos)
     {
         return Get(pos.x, pos.y);
     }
 
-    public bool Walkable(int x, int y)     //verifica daca celula de la coordonatele date e walkable
+    public bool Walkable(int x, int y)
     {
         GridCell cell = Get(x, y);
         return cell != null && cell.walkable;
     }
 
-    public bool FreeForAgent(GridCell cell, CustomerAgent agent)   //verifica daca un agent poate intra pe o celula
+    public bool FreeForAgent(GridCell cell, CustomerAgent agent)
     {
         if (cell == null || !cell.walkable)
             return false;
 
-        //daca tile-ul este ocupat de alt agent, nu putem intra
         if (cell.occupiedBy != null && cell.occupiedBy != agent)
             return false;
 
-        //daca tile-ul este deja rezervat de alt agent, nu putem intra
         if (cell.reservedForMove != null && cell.reservedForMove != agent)
             return false;
 
         return true;
     }
 
-
-    public GridCell Find(CellType type)        //returneaza prima celula de tipul dat
+    public GridCell Find(CellType type)
     {
         for (int x = 0; x < width; x++)
         {
@@ -132,7 +187,25 @@ public class GridManager : MonoBehaviour
         return null;
     }
 
-    public GridCell RandomWalkable()    //returneaza o celula aleatoare care e walkable
+    public List<GridCell> FindAll(CellType type)
+    {
+        List<GridCell> result = new List<GridCell>();
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                GridCell cell = grid[x, y];
+
+                if (cell.type == type)
+                    result.Add(cell);
+            }
+        }
+
+        return result;
+    }
+
+    public GridCell RandomWalkable()
     {
         List<GridCell> cells = new List<GridCell>();
 
@@ -140,15 +213,18 @@ public class GridManager : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                if (grid[x, y].walkable)
-                    cells.Add(grid[x, y]);
+                GridCell cell = grid[x, y];
+
+                if (cell.walkable)
+                    cells.Add(cell);
             }
         }
 
-        if (cells.Count == 0) return null;
+        if (cells.Count == 0)
+            return null;
+
         return cells[Random.Range(0, cells.Count)];
     }
-
 
     public List<GridCell> FindShelves(ProductType product)
     {
@@ -158,9 +234,12 @@ public class GridManager : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                GridCell c = grid[x, y];
-                if (c.type == CellType.Shelf && c.product == product)
-                    result.Add(c);
+                GridCell cell = grid[x, y];
+
+                if (cell.type == CellType.Shelf &&
+                    cell.product == product &&
+                    cell.stock > 0)
+                    result.Add(cell);
             }
         }
 
@@ -175,60 +254,66 @@ public class GridManager : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                GridCell c = grid[x, y];
-                if (c.type == CellType.Shelf && c.product != ProductType.None && !result.Contains(c.product))
-                    result.Add(c.product);
+                GridCell cell = grid[x, y];
+
+                if (cell.type == CellType.Shelf &&
+                    cell.product != ProductType.None &&
+                    !result.Contains(cell.product))
+                {
+                    result.Add(cell.product);
+                }
             }
         }
 
         return result;
     }
 
-
-    public Vector3 World(int x, int y)       //returneaza pozitia in lumea 3D a celulei de la coordonatele date
+    public Vector3 World(int x, int y)
     {
         return new Vector3(x * cellSize, y * cellSize, 0f) + offset;
     }
 
-    public Vector3 World(Vector2Int pos)    //overload pentru a putea folosi un Vector2Int in loc de coordonate separate
+    public Vector3 World(Vector2Int pos)
     {
         return World(pos.x, pos.y);
     }
 
-    public Vector2Int Grid(Vector3 worldPos)    //returneaza coordonatele in grid ale pozitiei date in lumea 3D
+    public Vector2Int Grid(Vector3 worldPos)
     {
         Vector3 p = worldPos - offset;
+
         int x = Mathf.RoundToInt(p.x / cellSize);
         int y = Mathf.RoundToInt(p.y / cellSize);
+
         return new Vector2Int(x, y);
     }
 
-
-    private void OnDrawGizmos()      //deseneaza grid-ul in editor
+    public void SetShelf(int x, int y, ProductType product, int stock = 5)
     {
-        if (!showGrid) return;
-
-        if (grid == null || grid.GetLength(0) != width || grid.GetLength(1) != height)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    Vector3 pos = World(x, y);
-
-                    Gizmos.color = new Color(1f, 1f, 1f, 0.15f);
-                    Gizmos.DrawCube(pos, Vector3.one * cellSize * 0.95f);
-
-                    Gizmos.color = Color.gray;
-                    Gizmos.DrawWireCube(pos, Vector3.one * cellSize);
-                }
-            }
-
-            return;
-        }
-
-    
+        Set(x, y, CellType.Shelf, false);
+        grid[x, y].product = product;
+        grid[x, y].stock = stock;
     }
 
+
+    public void ClearMoveReservationsFor(CustomerAgent agent)
+    {
+        if (agent == null || grid == null)
+            return;
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                GridCell cell = grid[x, y];
+
+                if (cell.reservedForMove == agent)
+                    cell.reservedForMove = null;
+            }
+        }
+    }
+
+
+    
 
 }
